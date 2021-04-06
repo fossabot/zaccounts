@@ -1,6 +1,6 @@
 import { Db, MongoClient } from 'mongodb'
 import { Logger } from 'pino'
-import { APP_KEYS, getCollection } from '@/db'
+import { SYS_KEYS, getCollection } from '@/db'
 import { Container } from '@/di'
 import { SYM } from '@/symbols'
 import { confirm } from '@/utils/prompts'
@@ -10,18 +10,18 @@ export async function runInit() {
   const logger = await Container.get<Logger>(SYM.LOGGER)
   const db = await Container.get<Db>(SYM.DB)
   const client = await Container.get<MongoClient>(SYM.MONGO_CLIENT)
-  const app_col = getCollection(db, 'app')
-  const app_ver = await app_col.findOne({ _id: APP_KEYS.ver })
+  const sys_col = getCollection(db, 'sys')
+  const sys_ver = await sys_col.findOne({ _id: SYS_KEYS.ver })
 
-  if (app_ver) {
+  if (sys_ver) {
     if (!(await confirm('App is initialized. Perform reinit?'))) {
       process.exit(0)
     }
   }
 
   async function setAppVer(ver: string) {
-    await app_col.updateOne(
-      { _id: APP_KEYS.ver },
+    await sys_col.updateOne(
+      { _id: SYS_KEYS.ver },
       { $set: { value: ver } },
       { upsert: true }
     )

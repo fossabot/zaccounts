@@ -1,4 +1,4 @@
-import { APP_KEYS, getCollection } from '@/db'
+import { SYS_KEYS, getCollection } from '@/db'
 import { Container } from '@/di'
 import { SYM } from '@/symbols'
 import { Db, MongoClient } from 'mongodb'
@@ -21,17 +21,17 @@ export async function _runMitigations() {
   const client = await Container.get<MongoClient>(SYM.MONGO_CLIENT)
   const db = await Container.get<Db>(SYM.DB)
   const logger = await Container.get<Logger>(SYM.LOGGER)
-  const app_col = getCollection(db, 'app')
+  const sys_col = getCollection(db, 'sys')
 
   const M = [...mitigations.entries()]
   M.sort((a, b) => semver.compare(a[0], b[0]))
 
   for (const [ver, fn] of M) {
-    const { value: cur } = (await app_col.findOne({ _id: APP_KEYS.ver }))!
+    const { value: cur } = (await sys_col.findOne({ _id: SYS_KEYS.ver }))!
     if (semver.lt(cur, ver)) {
       logger.info(`Mitigate from ${cur} to ${ver}`)
       await fn({ client, db, logger })
-      await app_col.updateOne({ _id: APP_KEYS.ver }, { $set: { value: ver } })
+      await sys_col.updateOne({ _id: SYS_KEYS.ver }, { $set: { value: ver } })
     }
   }
 }

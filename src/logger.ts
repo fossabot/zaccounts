@@ -25,4 +25,5 @@ export function setupLogger(
     })()
   })
   Container.provide(SYM.LOGGER, logger)
+  return logger
 }

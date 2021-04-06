@@ -5,6 +5,7 @@ import { setupLogger } from '@/logger'
 import { setupDB } from '@/db'
 import { runMitigations } from '@/mitigation'
 import { runInit } from '@/init'
+import { startWebServer } from './web'
 
 yargs
   .env('ZCT')
@@ -25,10 +26,11 @@ yargs
         })
         .option('dbName', { type: 'string', default: 'zccounts' }),
     async (argv) => {
-      setupLogger(argv.dev, argv.slient, argv.verbose)
+      const logger = setupLogger(argv.dev, argv.slient, argv.verbose)
       await setupDB(argv.dbUrl, argv.dbName)
       await runMitigations()
-      console.log(argv)
+      await startWebServer(argv.listen, argv.port)
+      logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
     }
   )
   .command(
