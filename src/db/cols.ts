@@ -25,11 +25,26 @@ export interface IUserAppInfo {
   perms: Record<string, string[]>
 }
 
+export interface IUserCred {
+  pass?: {
+    hash: string
+    salt: string
+  }
+}
+
+export interface IUserAltCred {
+  email?: string
+}
+
 export interface IUserDocument {
   _id: ObjectId
   name: string // username
   disp: string // nickname
   emails: IUserEmail[]
+  cred: IUserCred
+  altCred: IUserAltCred
+  require2FA: boolean
+
   apps: Record<string, IUserAppInfo>
 }
 

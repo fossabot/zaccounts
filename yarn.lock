@@ -77,6 +77,11 @@
     "@nodelib/fs.scandir" "2.1.4"
     fastq "^1.6.0"
 
+"@sinclair/typebox@^0.16.2":
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.16.2.tgz#f81ea9def0aaf3a7152c1b73d8db9122a37219da"
+  integrity sha512-fvGbn6K+gZY/aJDCdWiA/NmdIfSSXYDTs/8DMIxFGhbvDPPJSKpKam99SAygfJsAzfhN/SIh71GCiFPWrw33lQ==
+
 "@types/bson@*":
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/@types/bson/-/bson-4.0.3.tgz#30889d2ffde6262abbe38659364c631454999fbf"

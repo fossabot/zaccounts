@@ -37,6 +37,7 @@
     "test": "mocha"
   },
   "dependencies": {
+    "@sinclair/typebox": "^0.16.2",
     "dotenv": "^8.2.0",
     "fastify": "^3.14.1",
     "fastify-static": "^4.0.1",
