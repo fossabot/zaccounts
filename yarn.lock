@@ -896,7 +896,7 @@ fastify-plugin@^3.0.0:
   resolved "https://registry.yarnpkg.com/fastify-plugin/-/fastify-plugin-3.0.0.tgz#cf1b8c8098e3b5a7c8c30e6aeb06903370c054ca"
   integrity sha512-ZdCvKEEd92DNLps5n0v231Bha8bkz1DjnPP/aEz37rz/q42Z5JVLmgnqR4DYuNn3NXAO3IDCPyRvgvxtJ4Ym4w==
 
-fastify-static@^4.0.1:
+fastify-static@^4.0.0, fastify-static@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/fastify-static/-/fastify-static-4.0.1.tgz#28947728b2b4c9360eeea8a92ae7b36a0e38b273"
   integrity sha512-Mjt0My8Gf/nzJqIDai9rz3HsxH4RAJeMGMIPmf40lGMFKAv4SbRiKJ2cmteXoKHrFGPeGxwMq0gXfixwueV8wA==
@@ -906,6 +906,17 @@ fastify-static@^4.0.1:
     glob "^7.1.4"
     readable-stream "^3.4.0"
     send "^0.17.1"
+
+fastify-swagger@^4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/fastify-swagger/-/fastify-swagger-4.5.0.tgz#56c58e7f1338c932c083b212f303e7692ba08108"
+  integrity sha512-Ql2HhEfLdrgoOW057izSU74zb9KBbOE7Zcku6QMR3skIpdzUyuF3gjA+lFJu7x/6wuJjL6gMciA+ZbGbkT3jTw==
+  dependencies:
+    fastify-plugin "^3.0.0"
+    fastify-static "^4.0.0"
+    js-yaml "^4.0.0"
+    json-schema-resolver "^1.2.0"
+    openapi-types "^7.2.3"
 
 fastify-warning@^0.2.0:
   version "0.2.0"
@@ -1250,7 +1261,7 @@ js-tokens@^4.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@4.0.0:
+js-yaml@4.0.0, js-yaml@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.0.0.tgz#f426bc0ff4b4051926cd588c71113183409a121f"
   integrity sha512-pqon0s+4ScYUvX30wxQi3PogGFAlUyH0awepWvwkj4jD4v+ova3RiYw8bmA6x2rDrEaj8i/oWKoRxpVNW+Re8Q==
@@ -1264,6 +1275,15 @@ js-yaml@^3.13.1:
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
+
+json-schema-resolver@^1.2.0:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/json-schema-resolver/-/json-schema-resolver-1.2.2.tgz#52aeb8dbe4ece0df82c0ac2f1642384612542270"
+  integrity sha512-sW4b4BDJzYiKpJind7l1JtH3P1yn43vCv3w51YR2Ixse5rXr006TL10gM0Ek54pET6vxwiWq5RQuIMgmH9YrrQ==
+  dependencies:
+    debug "^4.1.1"
+    rfdc "^1.1.4"
+    uri-js "^4.2.2"
 
 json-schema-traverse@^0.4.1:
   version "0.4.1"
@@ -1487,6 +1507,11 @@ once@^1.3.0, once@^1.3.1, once@^1.4.0:
   integrity sha1-WDsap3WWHUsROsF9nFC6753Xa9E=
   dependencies:
     wrappy "1"
+
+openapi-types@^7.2.3:
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/openapi-types/-/openapi-types-7.2.3.tgz#83829911a3410a022f0e0cf2b0b2e67232ccf96e"
+  integrity sha512-olbaNxz12R27+mTyJ/ZAFEfUruauHH27AkeQHDHRq5AF0LdNkK1SSV7EourXQDK+4aX7dv2HtyirAGK06WMAsA==
 
 optionator@^0.9.1:
   version "0.9.1"

@@ -29,7 +29,7 @@ yargs
       const logger = setupLogger(argv.dev, argv.slient, argv.verbose)
       await setupDB(argv.dbUrl, argv.dbName)
       await runMitigations()
-      await startWebServer(argv.listen, argv.port)
+      await startWebServer(argv.listen, argv.port, argv.dev)
       logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
     }
   )

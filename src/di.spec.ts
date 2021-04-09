@@ -46,7 +46,7 @@ describe('DI', () => {
         assert.equal(c_count, 1)
       })
       it('lazy_provide', async () => {
-        setTimeout(() => Container.provide(SYM_E, 5), 100)
+        setImmediate(() => Container.provide(SYM_E, 5))
         assert.equal(await Container.get(SYM_E, true), 5)
       })
     })
