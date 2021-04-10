@@ -1,7 +1,7 @@
 import './preload'
 
 import yargs from 'yargs'
-import { logger, setupLogger } from '@/logger'
+import { Logger, setupLogger } from '@/logger'
 import { setupMongo } from '@/db'
 import { runMitigations } from '@/mitigation'
 import { runInit } from '@/init'
@@ -38,7 +38,7 @@ yargs
       await runMitigations()
 
       await startWebServer(argv.listen, argv.port, argv.dev)
-      logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
+      Logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
     }
   )
   .command(

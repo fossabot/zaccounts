@@ -1,24 +1,22 @@
-import { MongoClient } from 'mongodb'
-import { Container } from '@/di'
-import { SYM } from '@/symbols'
+import { Db as _Db, MongoClient as _MongoClient } from 'mongodb'
 import { CollectionTypes, DocumentTypes, getCollection } from '@/db/cols'
 
 export * from '@/db/cols'
 
 export const Collections: CollectionTypes = {} as any
+export let MongoClient: _MongoClient
+export let Db: _Db
 
 export async function setupMongo(mongoUrl: string, dbName: string) {
-  const client = new MongoClient(mongoUrl, {
+  MongoClient = new _MongoClient(mongoUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  await client.connect()
-  const db = client.db(dbName)
-  Container.provide(SYM.MONGO_CLIENT, client)
-  Container.provide(SYM.DB, db)
+  await MongoClient.connect()
+  Db = MongoClient.db(dbName)
 
   for (const name in DocumentTypes) {
     // @ts-ignore
-    Collections[name] = getCollection(db, name)
+    Collections[name] = getCollection(Db, name)
   }
 }

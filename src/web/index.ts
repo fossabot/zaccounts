@@ -1,17 +1,14 @@
 import fastify from 'fastify'
-import { Logger } from 'pino'
-import { Container } from '@/di'
-import { SYM } from '@/symbols'
 import { PACKAGE } from '@/utils/package'
 import { APIPlugin } from '@/api'
+import { Logger } from '@/logger'
 
 export async function startWebServer(
   listen: string,
   port: number,
   dev?: boolean
 ) {
-  const logger = await Container.get<Logger>(SYM.LOGGER)
-  const server = fastify({ logger })
+  const server = fastify({ logger: Logger })
 
   if (dev) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires

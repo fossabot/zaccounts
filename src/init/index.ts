@@ -1,11 +1,8 @@
-import { MongoClient } from 'mongodb'
-import { Logger } from 'pino'
 import format from 'pretty-ms'
-import { SYS_KEYS, Collections } from '@/db'
-import { Container } from '@/di'
-import { SYM } from '@/symbols'
+import { SYS_KEYS, Collections, MongoClient } from '@/db'
 import { confirm } from '@/utils/prompts'
 import { MAGICS } from '@/magics'
+import { Logger } from '@/logger'
 
 async function setAppVer(ver: string) {
   await Collections.sys.updateOne(
@@ -25,8 +22,6 @@ async function setSelfApp() {
 }
 
 export async function runInit() {
-  const logger = await Container.get<Logger>(SYM.LOGGER)
-  const client = await Container.get<MongoClient>(SYM.MONGO_CLIENT)
   const sys_ver = await Collections.sys.findOne({ _id: SYS_KEYS.ver })
 
   if (sys_ver) {
@@ -36,7 +31,7 @@ export async function runInit() {
   }
 
   const start = Date.now()
-  logger.info('Initializing application...')
+  Logger.info('Initializing application...')
 
   // BEGIN Application initialize
 
@@ -45,7 +40,7 @@ export async function runInit() {
 
   // END Application initialize
 
-  logger.info(`App initialized in ${format(Date.now() - start)}`)
-  await client.close()
+  Logger.info(`App initialized in ${format(Date.now() - start)}`)
+  await MongoClient.close()
   process.exit(0)
 }

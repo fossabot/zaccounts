@@ -1,15 +1,13 @@
-import pino, { Logger } from 'pino'
-import { Container } from '@/di'
-import { SYM } from '@/symbols'
+import pino from 'pino'
 
-export let logger: Logger
+export let Logger: pino.Logger
 
 export function setupLogger(
   dev: boolean | undefined,
   slient: boolean | undefined,
   level: number
 ) {
-  const _logger = pino({
+  Logger = pino({
     prettyPrint: dev,
     level: (() => {
       if (slient) return 'slient'
@@ -26,7 +24,4 @@ export function setupLogger(
       return dev ? 'info' : 'error'
     })()
   })
-  Container.provide(SYM.LOGGER, _logger)
-  logger = _logger
-  return _logger
 }
