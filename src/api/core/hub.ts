@@ -7,10 +7,10 @@ export interface HubMiddleware<TIn extends TSchema = TNull> {
 }
 
 export class Hub<TIn extends TSchema = TAny> {
-  _path = '/'
+  _path = ''
   _scope = ''
   _endpoints: Endpoint<any, any>[] = []
-  _collections: Hub<any>[] = []
+  _hubs: Hub<any>[] = []
   _TIn: TIn | null = null
   _middleware: HubMiddleware<TIn> | null = null
 
@@ -34,15 +34,27 @@ export class Hub<TIn extends TSchema = TAny> {
     return this
   }
 
-  endpoint<SIn extends TSchema, SOut extends TSchema>(
-    endpoint: Endpoint<SIn, SOut>
+  endpoint<SIn extends TSchema = TIn, SOut extends TSchema = TSchema>(
+    endpoint:
+      | Endpoint<SIn, SOut>
+      | ((endpoint: Endpoint<TIn, SOut>) => Endpoint<SIn, SOut>)
   ) {
-    this._endpoints.push(endpoint)
+    if (typeof endpoint === 'function') {
+      this._endpoints.push(endpoint(new Endpoint()))
+    } else {
+      this._endpoints.push(endpoint)
+    }
     return this
   }
 
-  collection<SIn extends TSchema>(collection: Hub<SIn>) {
-    this._collections.push(collection)
+  hub<SIn extends TSchema = TIn>(
+    hub: Hub<SIn> | ((hub: Hub<TIn>) => Hub<SIn>)
+  ) {
+    if (typeof hub === 'function') {
+      this._hubs.push(hub(new Hub()))
+    } else {
+      this._hubs.push(hub)
+    }
     return this
   }
 }

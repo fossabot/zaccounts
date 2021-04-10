@@ -1,16 +1,8 @@
 import format from 'pretty-ms'
-import { SYS_KEYS, Collections, MongoClient } from '@/db'
+import { Collections, MongoClient, getSys, setSys, Db } from '@/db'
 import { confirm } from '@/utils/prompts'
 import { MAGICS } from '@/magics'
 import { Logger } from '@/logger'
-
-async function setAppVer(ver: string) {
-  await Collections.sys.updateOne(
-    { _id: SYS_KEYS.ver },
-    { $set: { value: ver } },
-    { upsert: true }
-  )
-}
 
 async function setSelfApp() {
   await Collections.apps.insertOne({
@@ -22,7 +14,7 @@ async function setSelfApp() {
 }
 
 export async function runInit() {
-  const sys_ver = await Collections.sys.findOne({ _id: SYS_KEYS.ver })
+  const sys_ver = await getSys('ver')
 
   if (sys_ver) {
     if (!(await confirm('App is initialized. Perform reinit?'))) {
@@ -35,7 +27,9 @@ export async function runInit() {
 
   // BEGIN Application initialize
 
-  await setAppVer('0.0.0')
+  await Db.dropDatabase()
+  await setSys('ver', '0.0.0')
+  await setSys('auth', { pass: { enabled: true, config: {} } })
   await setSelfApp()
 
   // END Application initialize

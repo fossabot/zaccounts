@@ -1,4 +1,4 @@
-import { SYS_KEYS, Db, MongoClient, Collections } from '@/db'
+import { Db, MongoClient, getSys, setSys } from '@/db'
 import { Logger } from '@/logger'
 import semver from 'semver'
 
@@ -19,16 +19,11 @@ export async function _runMitigations() {
   M.sort((a, b) => semver.compare(a[0], b[0]))
 
   for (const [ver, fn] of M) {
-    const { value: cur } = (await Collections.sys.findOne({
-      _id: SYS_KEYS.ver
-    }))!
+    const cur = await getSys('ver')
     if (semver.lt(cur, ver)) {
       Logger.info(`Mitigate from ${cur} to ${ver}`)
       await fn({ client: MongoClient, db: Db, logger: Logger })
-      await Collections.sys.updateOne(
-        { _id: SYS_KEYS.ver },
-        { $set: { value: ver } }
-      )
+      await setSys('ver', ver)
     }
   }
 }

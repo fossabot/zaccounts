@@ -5,8 +5,9 @@ import { Logger, setupLogger } from '@/logger'
 import { setupMongo } from '@/db'
 import { runMitigations } from '@/mitigation'
 import { runInit } from '@/init'
-import { startWebServer } from './web'
-import { setupRedis } from './cache'
+import { startWebServer } from '@/web'
+import { setupRedis } from '@/cache'
+import { setupAuthProviders } from '@/api/auth'
 
 yargs
   .env('ZCT')
@@ -37,6 +38,7 @@ yargs
 
       await runMitigations()
 
+      await setupAuthProviders()
       await startWebServer(argv.listen, argv.port, argv.dev)
       Logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
     }

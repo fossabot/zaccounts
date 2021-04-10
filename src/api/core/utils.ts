@@ -8,9 +8,10 @@ export function mergeScope(a: string, b: string) {
 }
 
 export function mergePath(a: string, b: string) {
-  if (!b.length || b === '/') return a
-  b = b.startsWith('/') ? b : '/' + b
-  return a === '/' ? b : a + b
+  if (!b.length) return a
+  if (b.startsWith('/')) return b
+  if (a === '/') return a + b
+  return a + '/' + b
 }
 
 export function mergeSchema(a: TSchema | null, b: TSchema | null) {

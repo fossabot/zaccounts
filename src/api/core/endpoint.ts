@@ -19,7 +19,7 @@ export class Endpoint<
   TIn extends TSchema = TObject<{}>,
   TOut extends TSchema = TNull
 > {
-  _path = '/'
+  _path = ''
   _method: HTTPMethod = 'POST'
   _scope = ''
   _handler: IEndpointHandler<TIn, TOut> = defaultHandler

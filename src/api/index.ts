@@ -1,27 +1,16 @@
 import { Type } from '@sinclair/typebox'
 import { Hub, Endpoint, generateFastifyPlugin } from '@/api/core'
-import { Collections } from '@/db'
-import { generateUserToken } from '@/api/core'
+import { UserRoot } from '@/api/user'
+import { AuthRoot } from '@/api/auth'
 
 const APIRoot = new Hub()
-  .middleware(async () => {
-    // await ratelimit())
-  })
+  .hub(AuthRoot)
+  .hub(UserRoot)
   .endpoint(
     new Endpoint()
-      .path('/login')
-      .input(
-        Type.Object({
-          name: Type.String(),
-          cred: Type.Object({}, { minProperties: 1, maxProperties: 2 })
-        })
-      )
+      .method('GET')
       .output(Type.String())
-      .handler(async (ctx) => {
-        const user = await Collections.users.findOne({ name: ctx.payload.name })
-        if (!user) throw new Error('Not found')
-        return generateUserToken(user._id)
-      })
+      .handler(() => 'Hello')
   )
 
 export const APIPlugin = generateFastifyPlugin(APIRoot)

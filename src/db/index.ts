@@ -1,7 +1,7 @@
 import { Db as _Db, MongoClient as _MongoClient } from 'mongodb'
-import { CollectionTypes, DocumentTypes, getCollection } from '@/db/cols'
+import { CollectionTypes, DocumentTypes, getCollection } from '@/db/collections'
 
-export * from '@/db/cols'
+export * from '@/db/collections'
 
 export const Collections: CollectionTypes = {} as any
 export let MongoClient: _MongoClient

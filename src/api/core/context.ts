@@ -1,6 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { buildScopeTree, ScopeTree } from '@/api/core/utils'
-import { verifyToken } from '@/api/core/token'
 import { Collections } from '@/db'
 import { MAGICS } from '@/magics'
 
@@ -8,6 +7,7 @@ interface BaseSession {
   type: string
   user: string
   scopes: ScopeTree
+  token: string
 }
 
 interface AppSession extends BaseSession {
@@ -42,30 +42,27 @@ async function generateScopeTree(user: string, app: string) {
   return buildScopeTree(scopes)
 }
 
-export async function parseSession(
-  req: FastifyRequest
+export async function getSession(
+  token: string | undefined
 ): Promise<Session | null> {
-  const authorization = req.headers.authorization
-  if (authorization && authorization.startsWith('token ')) {
-    const token = authorization.substr(6).trim()
-    if (!verifyToken(token)) throw new Error('Invalid token')
-    const info = await Collections.tokens.findOne({ _id: token })
-    if (!info) throw new Error('Invalid token')
-    if (info.type === 'user') {
-      return {
-        type: 'user',
-        user: info.user,
-        admin: info.admin,
-        scopes: true
-      }
-    } else {
-      return {
-        type: 'app',
-        user: info.user,
-        app: info.app,
-        scopes: await generateScopeTree(info.user, info.app)
-      }
+  if (!token) return null
+  const info = await Collections.tokens.findOne({ _id: token })
+  if (!info) throw new Error('Invalid token')
+  if (info.type === 'user') {
+    return {
+      type: 'user',
+      user: info.user,
+      admin: info.admin,
+      scopes: true,
+      token
+    }
+  } else {
+    return {
+      type: 'app',
+      user: info.user,
+      app: info.app,
+      scopes: await generateScopeTree(info.user, info.app),
+      token
     }
   }
-  return null
 }

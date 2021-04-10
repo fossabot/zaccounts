@@ -1,9 +1,9 @@
-import { SYS_KEYS, Collections } from '@/db'
+import { getSys } from '@/db'
 import { Logger } from '@/logger'
 import { _runMitigations } from '@/mitigation/base'
 
 export async function runMitigations() {
-  const sys_ver = await Collections.sys.findOne({ _id: SYS_KEYS.ver })
+  const sys_ver = await getSys('ver')
 
   if (sys_ver) {
     await _runMitigations()

@@ -9,7 +9,7 @@ import {
 } from 'fastify'
 import { Hub, HubMiddleware } from '@/api/core/hub'
 import { Endpoint } from '@/api/core/endpoint'
-import { Context, parseSession } from '@/api/core/context'
+import { Context, getSession } from '@/api/core/context'
 import {
   mergeScope,
   mergePath,
@@ -17,6 +17,22 @@ import {
   ScopeTree,
   matchScope
 } from '@/api/core/utils'
+import { verifyToken } from '@/api/core/token'
+import { ratelimit } from '@/cache/ratelimit'
+
+async function parseAndLimitToken(req: FastifyRequest, res: FastifyReply) {
+  const authorization = req.headers.authorization
+  if (authorization && authorization.startsWith('token ')) {
+    const token = authorization.substr(6).trim()
+    if (!verifyToken(token)) throw new Error('Invalid token')
+    const rest = await ratelimit(token, 1000, 60)
+    void res.header('x-rate-limit-remaining', rest.toString())
+    return token
+  } else {
+    const rest = await ratelimit(req.ip, 1000, 60)
+    void res.header('x-rate-limit-remaining', rest.toString())
+  }
+}
 
 function generateFastifySchema(
   endpoint: Endpoint,
@@ -41,19 +57,21 @@ function generateContextInit(
 ): (req: FastifyRequest, res: FastifyReply) => Promise<Context> | Context {
   if (endpoint._method === 'GET') {
     return async (req, res) => {
+      const token = await parseAndLimitToken(req, res)
       return {
         req,
         res,
-        session: await parseSession(req),
+        session: await getSession(token),
         payload: req.query
       }
     }
   } else {
     return async (req, res) => {
+      const token = await parseAndLimitToken(req, res)
       return {
         req,
         res,
-        session: await parseSession(req),
+        session: await getSession(token),
         payload: req.body
       }
     }
@@ -129,11 +147,13 @@ function walkCollection(
   scope = mergeScope(scope, hub._scope)
   path = mergePath(path, hub._path)
   schema = mergeSchema(schema, hub._TIn)
-  if (hub._middleware) middlewares.push(hub._middleware)
+  if (hub._middleware) {
+    middlewares = [...middlewares, hub._middleware]
+  }
   for (const endpoint of hub._endpoints) {
     applyEndpoint(server, endpoint, scope, path, schema, middlewares)
   }
-  hub._collections.forEach((x) =>
+  hub._hubs.forEach((x) =>
     walkCollection(server, x, scope, path, schema, middlewares)
   )
 }
