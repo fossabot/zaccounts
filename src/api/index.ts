@@ -1,42 +1,27 @@
-import { Collection, Endpoint } from '@/api/base'
 import { Type } from '@sinclair/typebox'
+import { Hub, Endpoint, generateFastifyPlugin } from '@/api/core'
+import { Collections } from '@/db'
+import { generateUserToken } from '@/api/core'
 
-export const APIRoot = new Collection()
+const APIRoot = new Hub()
+  .middleware(async () => {
+    // await ratelimit())
+  })
   .endpoint(
     new Endpoint()
-      .method('GET')
-      .output(Type.String())
-      .handler((ctx) => {
-        return ctx.req.ip
-      })
-  )
-  .endpoint(
-    new Endpoint()
-      .method('GET')
-      .path('/add')
-      .input(Type.Object({ a: Type.Number(), b: Type.Number() }))
-      .output(Type.Number())
-      .handler(async (ctx) => ctx.payload.a + ctx.payload.b)
-  )
-  .endpoint(
-    new Endpoint()
-      .method('GET')
-      .path('/err')
-      .input(Type.Object({ a: Type.Number(), b: Type.Number() }))
-      .output(Type.Number())
-      .handler(async () => {
-        throw new Error('Ouch')
-      })
-  )
-  .collection(
-    new Collection()
-      .path('sub')
-      .input(Type.Object({ id: Type.String() }))
-      .endpoint(
-        new Endpoint()
-          .path('/test')
-          .input(Type.Object({}))
-          .output(Type.String())
-          .handler(async (ctx) => (ctx.payload as any).id)
+      .path('/login')
+      .input(
+        Type.Object({
+          name: Type.String(),
+          cred: Type.Object({}, { minProperties: 1, maxProperties: 2 })
+        })
       )
+      .output(Type.String())
+      .handler(async (ctx) => {
+        const user = await Collections.users.findOne({ name: ctx.payload.name })
+        if (!user) throw new Error('Not found')
+        return generateUserToken(user._id)
+      })
   )
+
+export const APIPlugin = generateFastifyPlugin(APIRoot)

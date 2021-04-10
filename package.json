@@ -9,6 +9,8 @@
   "private": true,
   "devDependencies": {
     "@types/chai": "^4.2.16",
+    "@types/crc": "^3.4.0",
+    "@types/ioredis": "^4.22.3",
     "@types/mocha": "^8.2.2",
     "@types/module-alias": "^2.0.0",
     "@types/mongodb": "^3.6.11",
@@ -39,9 +41,11 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.16.2",
+    "crc": "^3.8.0",
     "dotenv": "^8.2.0",
     "fastify": "^3.14.1",
     "fastify-static": "^4.0.1",
+    "ioredis": "^4.26.0",
     "module-alias": "^2.2.2",
     "mongodb": "^3.6.5",
     "pino": "^6.11.2",

@@ -2,9 +2,8 @@ import fastify from 'fastify'
 import { Logger } from 'pino'
 import { Container } from '@/di'
 import { SYM } from '@/symbols'
-import { apply } from '@/api/base'
-import { APIRoot } from '@/api'
 import { PACKAGE } from '@/utils/package'
+import { APIPlugin } from '@/api'
 
 export async function startWebServer(
   listen: string,
@@ -28,7 +27,7 @@ export async function startWebServer(
     })
   }
 
-  apply(APIRoot, server)
+  await server.register(APIPlugin)
 
   await server.listen(port, listen)
   console.log(server.printRoutes())

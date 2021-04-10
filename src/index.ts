@@ -1,11 +1,12 @@
 import './preload'
 
 import yargs from 'yargs'
-import { setupLogger } from '@/logger'
-import { setupDB } from '@/db'
+import { logger, setupLogger } from '@/logger'
+import { setupMongo } from '@/db'
 import { runMitigations } from '@/mitigation'
 import { runInit } from '@/init'
 import { startWebServer } from './web'
+import { setupRedis } from './cache'
 
 yargs
   .env('ZCT')
@@ -20,15 +21,22 @@ yargs
       yargs
         .option('port', { type: 'number', default: 3032 })
         .option('listen', { type: 'string', default: '127.0.0.1' })
-        .option('dbUrl', {
+        .option('mongoUrl', {
           type: 'string',
           default: 'mongodb://localhost:27017'
         })
+        .option('redisUrl', {
+          type: 'string',
+          default: 'redis://127.0.0.1:6379/1'
+        })
         .option('dbName', { type: 'string', default: 'zccounts' }),
     async (argv) => {
-      const logger = setupLogger(argv.dev, argv.slient, argv.verbose)
-      await setupDB(argv.dbUrl, argv.dbName)
+      setupLogger(argv.dev, argv.slient, argv.verbose)
+      await setupMongo(argv.mongoUrl, argv.dbName)
+      await setupRedis(argv.redisUrl)
+
       await runMitigations()
+
       await startWebServer(argv.listen, argv.port, argv.dev)
       logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
     }
@@ -38,14 +46,14 @@ yargs
     'init zccounts server',
     (yargs) =>
       yargs
-        .option('dbUrl', {
+        .option('mongoUrl', {
           type: 'string',
           default: 'mongodb://localhost:27017'
         })
         .option('dbName', { type: 'string', default: 'zccounts' }),
     async (argv) => {
       setupLogger(argv.dev, argv.slient, argv.verbose)
-      await setupDB(argv.dbUrl, argv.dbName)
+      await setupMongo(argv.mongoUrl, argv.dbName)
       await runInit()
     }
   )
