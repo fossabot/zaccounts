@@ -9,14 +9,15 @@ const APIRoot = new Hub()
   .endpoint(
     new Endpoint()
       .method('GET')
+      .input(Type.Object({}))
       .output(
         Type.Object({
           doc: Type.String()
         })
       )
-      .handler(() => ({
-        doc: 'http://127.0.0.1:3032/documentation'
-      }))
+      .handler(() => {
+        return { doc: 'http://127.0.0.1:3032/documentation' }
+      })
   )
 
 export const APIPlugin = generateFastifyPlugin(APIRoot)

@@ -1,15 +1,26 @@
-export interface UserTokenDocument {
+export interface BaseTokenDocument {
   _id: string
   user: string
+  type: string
+  atime?: number
+}
+
+export interface UserTokenDocument extends BaseTokenDocument {
   type: 'user'
   admin?: boolean
 }
 
-export interface AppTokenDocument {
-  _id: string
-  user: string
-  app: string
+export interface AppTokenDocument extends BaseTokenDocument {
   type: 'app'
+  app: string
 }
 
-export type TokenDocument = UserTokenDocument | AppTokenDocument
+export interface PersonalAccessTokenDocument extends BaseTokenDocument {
+  type: 'pat'
+  scopes: string[]
+}
+
+export type TokenDocument =
+  | UserTokenDocument
+  | AppTokenDocument
+  | PersonalAccessTokenDocument

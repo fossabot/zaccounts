@@ -7,10 +7,10 @@ export const DummyAuth = defineAuthProvider({
   TVerify: Type.Object({}),
   TUpdate: Type.Object({}),
   TDetails: Type.Object({}),
-  async verify() {
+  verify() {
     return false
   },
-  async update() {
+  update() {
     return {}
   },
   details() {

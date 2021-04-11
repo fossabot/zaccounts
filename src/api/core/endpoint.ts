@@ -1,11 +1,12 @@
-import { TSchema, TNull, Static, TObject, Type, TAny } from '@sinclair/typebox'
 import { Context } from '@/api/core/context'
+import { Cast, OptionalSchema } from '@/api/core/utils'
+import { MayPromise } from '@/utils/types'
 
 export interface IEndpointHandler<
-  TIn extends TSchema = TNull,
-  TOut extends TSchema = TNull
+  TIn extends OptionalSchema,
+  TOut extends OptionalSchema
 > {
-  (ctx: Context<Static<TIn>>): Promise<Static<TOut>> | Static<TOut>
+  (ctx: Context<Cast<TIn>>): MayPromise<Cast<TOut>>
 }
 
 const defaultHandler = async () => {
@@ -15,16 +16,15 @@ const defaultHandler = async () => {
 type HTTPMethod = 'GET' | 'POST'
 
 export class Endpoint<
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  TIn extends TSchema = TObject<{}>,
-  TOut extends TSchema = TNull
+  TIn extends OptionalSchema = null,
+  TOut extends OptionalSchema = null
 > {
   _path = ''
   _method: HTTPMethod = 'POST'
   _scope = ''
   _handler: IEndpointHandler<TIn, TOut> = defaultHandler
-  _TIn: TIn = Type.Object({}) as TIn
-  _TOut: TOut = Type.Null() as TOut
+  _TIn: TIn = null as TIn
+  _TOut: TOut = null as TOut
   _raw = false
 
   path(path: string) {
@@ -40,18 +40,18 @@ export class Endpoint<
     return this
   }
 
-  input<S extends TSchema>(schema: S) {
+  input<S extends OptionalSchema>(schema: S) {
     this._TIn = schema as any
     return (this as any) as Endpoint<S, TOut>
   }
-  output<S extends TSchema>(schema: S) {
+  output<S extends OptionalSchema>(schema: S) {
     this._TOut = schema as any
     return (this as any) as Endpoint<TIn, S>
   }
   raw() {
-    this._TOut = Type.Any() as any
+    this._TOut = null as TOut
     this._raw = true
-    return (this as any) as Endpoint<TIn, TAny>
+    return (this as any) as Endpoint<TIn, null>
   }
 
   handler(handler: IEndpointHandler<TIn, TOut>) {

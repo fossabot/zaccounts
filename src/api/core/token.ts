@@ -31,7 +31,8 @@ function base62toint32(s: string) {
 
 const TokenTypes = {
   u: 'User Token',
-  a: 'App Token'
+  a: 'App Token',
+  p: 'Personal Access Token'
 }
 
 type TokenType = keyof typeof TokenTypes

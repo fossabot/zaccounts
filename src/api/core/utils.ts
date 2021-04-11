@@ -1,4 +1,7 @@
-import { TSchema, Type } from '@sinclair/typebox'
+import { Static, TSchema, Type } from '@sinclair/typebox'
+
+export type OptionalSchema = TSchema | null
+export type Cast<T extends TSchema | null> = T extends TSchema ? Static<T> : any
 
 export function mergeScope(a: string, b: string) {
   if (!b.length) return a
@@ -14,7 +17,7 @@ export function mergePath(a: string, b: string) {
   return a + '/' + b
 }
 
-export function mergeSchema(a: TSchema | null, b: TSchema | null) {
+export function mergeSchema(a: OptionalSchema, b: OptionalSchema) {
   if (!(a && b)) return a || b
   if (a.type === 'object' && b.type === 'object')
     return Type.Intersect([a as any, b as any])

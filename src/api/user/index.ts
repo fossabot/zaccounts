@@ -15,7 +15,10 @@ export const UserRoot = new Hub()
       .input(HasUser)
       .output(Type.Any())
       .handler(async (ctx) => {
-        const user = await Collections.users.findOne({ _id: ctx.payload.user })
+        const user = await Collections.users.findOne(
+          { _id: ctx.payload.user },
+          { projection: { cred: 0 } }
+        )
         return user
       })
   )

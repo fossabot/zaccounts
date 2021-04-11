@@ -1,17 +1,18 @@
-import { TSchema, TAny, Static, TNull } from '@sinclair/typebox'
 import { Endpoint } from '@/api/core/endpoint'
 import { Context } from '@/api/core/context'
+import { Cast, OptionalSchema } from '@/api/core/utils'
+import { MayPromise } from '@/utils/types'
 
-export interface HubMiddleware<TIn extends TSchema = TNull> {
-  (ctx: Context<Static<TIn>>): Promise<void> | void
+export interface HubMiddleware<TIn extends OptionalSchema> {
+  (ctx: Context<Cast<TIn>>): MayPromise<void>
 }
 
-export class Hub<TIn extends TSchema = TAny> {
+export class Hub<TIn extends OptionalSchema = null> {
   _path = ''
   _scope = ''
   _endpoints: Endpoint<any, any>[] = []
   _hubs: Hub<any>[] = []
-  _TIn: TIn | null = null
+  _TIn: TIn = null as TIn
   _middleware: HubMiddleware<TIn> | null = null
 
   path(path: string) {
@@ -24,7 +25,7 @@ export class Hub<TIn extends TSchema = TAny> {
     return this
   }
 
-  input<S extends TSchema>(schema: S) {
+  input<S extends OptionalSchema>(schema: S) {
     this._TIn = schema as any
     return (this as any) as Hub<S>
   }
@@ -34,7 +35,7 @@ export class Hub<TIn extends TSchema = TAny> {
     return this
   }
 
-  endpoint<SIn extends TSchema = TIn, SOut extends TSchema = TSchema>(
+  endpoint<SIn extends OptionalSchema, SOut extends OptionalSchema>(
     endpoint:
       | Endpoint<SIn, SOut>
       | ((endpoint: Endpoint<TIn, SOut>) => Endpoint<SIn, SOut>)
@@ -47,7 +48,7 @@ export class Hub<TIn extends TSchema = TAny> {
     return this
   }
 
-  hub<SIn extends TSchema = TIn>(
+  hub<SIn extends OptionalSchema>(
     hub: Hub<SIn> | ((hub: Hub<TIn>) => Hub<SIn>)
   ) {
     if (typeof hub === 'function') {

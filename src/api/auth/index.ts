@@ -101,6 +101,7 @@ export async function setupAuthProviders() {
                 data: provider.TUpdate
               })
             )
+            .output(Type.Void())
             .handler(async (ctx) => {
               const local: any = await getLocalCred(ctx.payload.user, name)
               const result = await provider.update(

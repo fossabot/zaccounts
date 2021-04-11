@@ -9,16 +9,20 @@ import {
 } from 'fastify'
 import { Hub, HubMiddleware } from '@/api/core/hub'
 import { Endpoint } from '@/api/core/endpoint'
-import { Context, getSession } from '@/api/core/context'
+import { Context } from '@/api/core/context'
 import {
   mergeScope,
   mergePath,
   mergeSchema,
   ScopeTree,
-  matchScope
+  matchScope,
+  OptionalSchema
 } from '@/api/core/utils'
 import { verifyToken } from '@/api/core/token'
 import { ratelimit } from '@/cache/ratelimit'
+import { getSessionByToken } from '@/cache/session'
+import { TError } from '@/api/core/schemas'
+import { Logger } from '@/logger'
 
 async function parseAndLimitToken(req: FastifyRequest, res: FastifyReply) {
   const authorization = req.headers.authorization
@@ -35,21 +39,56 @@ async function parseAndLimitToken(req: FastifyRequest, res: FastifyReply) {
 }
 
 function generateFastifySchema(
-  endpoint: Endpoint,
-  TIn: TSchema
+  endpoint: Endpoint<OptionalSchema, OptionalSchema>,
+  TIn: TSchema | null,
+  path: string
 ): FastifySchema {
-  return {
-    [endpoint._method === 'GET' ? 'querystring' : 'body']: Type.Strict(TIn),
-    response: {
-      200: Type.Strict(
-        Type.Object({
-          ok: Type.Boolean(),
-          r: Type.Optional(endpoint._TOut),
-          e: Type.Optional(Type.String())
-        })
+  const schema: FastifySchema = {}
+  if (TIn) {
+    schema[endpoint._method === 'GET' ? 'querystring' : 'body'] = Type.Strict(
+      TIn
+    )
+  } else {
+    Logger.warn(
+      `API Endpoint [${endpoint._method}]${path} do not have input schema!`
+    )
+  }
+  if (endpoint._raw) {
+    schema.response = {
+      400: TError
+    }
+  } else {
+    if (endpoint._TOut) {
+      if (
+        endpoint._TOut.type === 'void' ||
+        endpoint._TOut.type === 'undefined'
+      ) {
+        schema.response = {
+          200: Type.Strict(
+            Type.Object({
+              ok: Type.Boolean(),
+              e: Type.Optional(TError)
+            })
+          )
+        }
+      } else {
+        schema.response = {
+          200: Type.Strict(
+            Type.Object({
+              ok: Type.Boolean(),
+              r: Type.Optional(endpoint._TOut!),
+              e: Type.Optional(TError)
+            })
+          )
+        }
+      }
+    } else {
+      Logger.warn(
+        `API Endpoint [${endpoint._method}]${path} do not have output schema!`
       )
     }
   }
+  return schema
 }
 
 function generateContextInit(
@@ -61,7 +100,7 @@ function generateContextInit(
       return {
         req,
         res,
-        session: await getSession(token),
+        session: token ? await getSessionByToken(token) : null,
         payload: req.query
       }
     }
@@ -71,7 +110,7 @@ function generateContextInit(
       return {
         req,
         res,
-        session: await getSession(token),
+        session: token ? await getSessionByToken(token) : null,
         payload: req.body
       }
     }
@@ -98,7 +137,8 @@ function generateFastifyHandler(
         const r = await endpoint._handler(ctx)
         return r
       } catch (e) {
-        return { ok: false, e: e.message }
+        void res.code(400)
+        return e.message
       }
     }
   } else {
@@ -126,17 +166,19 @@ function applyEndpoint(
 ) {
   scope = mergeScope(scope, endpoint._scope)
   path = mergePath(path, endpoint._path)
-  SIn = mergeSchema(SIn, endpoint._TIn)!
+  SIn = mergeSchema(SIn, endpoint._TIn)
+
+  Logger.info(`Apply API Endpoint [${endpoint._method}]${path} <${scope}>`)
 
   server.route({
     method: endpoint._method,
     url: path,
-    schema: generateFastifySchema(endpoint, SIn),
+    schema: generateFastifySchema(endpoint, SIn, path),
     handler: generateFastifyHandler(endpoint, scope, middlewares)
   })
 }
 
-function walkCollection(
+function walkHub(
   server: FastifyInstance,
   hub: Hub,
   scope: string,
@@ -150,16 +192,17 @@ function walkCollection(
   if (hub._middleware) {
     middlewares = [...middlewares, hub._middleware]
   }
+
+  Logger.info(`Found API Hub ${path} <${scope}>`)
+
   for (const endpoint of hub._endpoints) {
     applyEndpoint(server, endpoint, scope, path, schema, middlewares)
   }
-  hub._hubs.forEach((x) =>
-    walkCollection(server, x, scope, path, schema, middlewares)
-  )
+  hub._hubs.forEach((x) => walkHub(server, x, scope, path, schema, middlewares))
 }
 
 export function generateFastifyPlugin(root: Hub): FastifyPluginAsync {
   return async (server) => {
-    walkCollection(server, root, '.', '/', null, [])
+    walkHub(server, root, '.', '/', null, [])
   }
 }

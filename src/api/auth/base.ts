@@ -1,6 +1,5 @@
+import { MayPromise } from '@/utils/types'
 import { Static, TSchema } from '@sinclair/typebox'
-
-type MayPromise<T> = Promise<T> | T
 
 export function defineAuthProvider<
   A extends TSchema,
