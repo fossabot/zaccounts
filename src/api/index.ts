@@ -19,5 +19,29 @@ const APIRoot = new Hub()
         return { doc: 'http://127.0.0.1:3032/documentation' }
       })
   )
+  .endpoint((endpoint) =>
+    endpoint
+      .method('GET')
+      .path('/raw')
+      .raw()
+      .handler(() => 'hello')
+  )
+  .endpoint((e) =>
+    e
+      .method('GET')
+      .path('err')
+      .handler(() => {
+        throw new Error('1')
+      })
+  )
+  .endpoint((e) =>
+    e
+      .path('rawerr')
+      .method('GET')
+      .raw()
+      .handler(() => {
+        throw new Error('2')
+      })
+  )
 
 export const APIPlugin = generateFastifyPlugin(APIRoot)

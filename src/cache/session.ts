@@ -2,6 +2,7 @@ import { buildScopeTree } from '@/api/core'
 import { Session } from '@/api/core/context'
 import { RedisClient } from '@/cache'
 import { Collections } from '@/db'
+import { SysError, SysErrors } from '@/errors'
 import { MAGICS } from '@/magics'
 
 async function generateScopeTree(user: string, app: string) {
@@ -10,7 +11,7 @@ async function generateScopeTree(user: string, app: string) {
     { _id: user },
     { projection: { [key]: 1 } }
   )
-  if (!result) throw new Error('Not found')
+  if (!result) throw new SysError(SysErrors.NotFound)
   const scopes = result.apps[app].perms[MAGICS.appId]
   return buildScopeTree(scopes)
 }
@@ -20,7 +21,7 @@ export async function generateSession(token: string): Promise<Session> {
     { _id: token },
     { $set: { atime: Date.now() } }
   )
-  if (!value) throw new Error('Invalid token')
+  if (!value) throw new SysError(SysErrors.InvalidToken)
   if (value.type === 'user') {
     return {
       type: 'user',
@@ -38,7 +39,7 @@ export async function generateSession(token: string): Promise<Session> {
       token
     }
   }
-  throw new Error('Bad token')
+  throw new SysError(SysErrors.InvalidToken)
 }
 
 export async function getSessionByToken(token: string): Promise<Session> {

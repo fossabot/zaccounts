@@ -40,7 +40,9 @@ yargs
 
       await setupAuthProviders()
       await startWebServer(argv.listen, argv.port, argv.dev)
-      Logger.error(`zccounts server started on ${argv.listen}:${argv.port}`)
+      Logger.error(
+        `MAIN\tZccounts server started on ${argv.listen}:${argv.port}`
+      )
     }
   )
   .command(

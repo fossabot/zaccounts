@@ -1,5 +1,6 @@
 import { Context } from '@/api/core/context'
 import { Cast, OptionalSchema } from '@/api/core/utils'
+import { SysError, SysErrors } from '@/errors'
 import { MayPromise } from '@/utils/types'
 
 export interface IEndpointHandler<
@@ -10,7 +11,7 @@ export interface IEndpointHandler<
 }
 
 const defaultHandler = async () => {
-  throw new Error('Not implemented')
+  throw new SysError(SysErrors.NotImplemented)
 }
 
 type HTTPMethod = 'GET' | 'POST'

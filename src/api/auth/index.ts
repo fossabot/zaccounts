@@ -6,6 +6,7 @@ import { Logger } from '@/logger'
 import { Static, Type } from '@sinclair/typebox'
 import { PassAuth } from '@/api/auth/pass'
 import { DummyAuth } from '@/api/auth/dummy'
+import { SysError, SysErrors } from '@/errors'
 
 const providers = {
   pass: PassAuth,
@@ -46,7 +47,7 @@ async function getLocalCred<T extends ProviderName>(
     { _id: user },
     { projection: { [`cred.${name}`]: 1 } }
   )
-  if (!User) throw new Error('Not found')
+  if (!User) throw new SysError(SysErrors.NotFound)
   return name in User.cred ? (User.cred[name] as any) : null
 }
 
@@ -89,7 +90,8 @@ export async function setupAuthProviders() {
             .output(provider.TDetails)
             .handler(async (ctx) => {
               const local: any = await getLocalCred(ctx.payload.user, name)
-              if (local === null) throw new Error('Not enabled')
+              if (local === null)
+                throw new SysError(SysErrors.AuthProviderNotEnabled)
               return provider.details(config, local)
             })
         )
@@ -129,7 +131,7 @@ export async function setupAuthProviders() {
     }
   }
   if (credSchema === null) {
-    Logger.warn('No auth provider enabled')
+    Logger.warn('API:AUTH\tNo auth provider enabled')
     return
   }
 
@@ -148,20 +150,30 @@ export async function setupAuthProviders() {
         })
       )
       .handler(async (ctx) => {
-        if (ctx.session) throw new Error('Already logged in')
+        if (ctx.session) {
+          throw new SysError(SysErrors.AlreadyLoggedIn)
+        }
 
         const user = await Collections.users.findOne(
           { name: ctx.payload.name },
           { projection: { _id: 1, cred: 1, require2FA: 1 } }
         )
-        if (!user) throw new Error('Not found')
-        if (user.require2FA && Object.keys(ctx.payload.cred).length < 2)
-          throw new Error('2FA required')
+        if (!user) {
+          throw new SysError(SysErrors.NotFound)
+        }
+
+        if (user.require2FA && Object.keys(ctx.payload.cred).length < 2) {
+          throw new SysError(SysErrors.Require2FA)
+        }
+
         for (const name in ctx.payload.cred) {
-          if (!(name in user.cred)) throw new Error('Not enabled')
+          if (!(name in user.cred)) {
+            throw new SysError(SysErrors.AuthProviderNotEnabled)
+          }
           const local = user.cred[name as ProviderName]!
-          if (!(await verifiers[name](local, ctx.payload.cred[name])))
-            throw new Error('Access denied')
+          if (!(await verifiers[name](local, ctx.payload.cred[name]))) {
+            throw new SysError(SysErrors.AccessDenied)
+          }
         }
         const token = await generateUserToken(user._id)
         return { token }

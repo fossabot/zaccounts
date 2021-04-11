@@ -1,3 +1,7 @@
-import { Type } from '@sinclair/typebox'
+import { Static, Type } from '@sinclair/typebox'
 
-export const TError = Type.String()
+export const TError = Type.Object({
+  n: Type.Integer(),
+  m: Type.String()
+})
+export type TError = Static<typeof TError>

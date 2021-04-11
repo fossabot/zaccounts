@@ -8,7 +8,7 @@ export async function runMitigations() {
   if (sys_ver) {
     await _runMitigations()
   } else {
-    Logger.error('Please initialize database first')
+    Logger.error('MITIGATE\tPlease initialize database first')
     process.exit(1)
   }
 }

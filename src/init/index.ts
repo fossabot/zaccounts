@@ -38,7 +38,7 @@ export async function runInit() {
   }
 
   const start = Date.now()
-  Logger.info('Initializing application...')
+  Logger.info('INIT\tInitializing application...')
 
   // BEGIN Application initialize
 
@@ -63,7 +63,7 @@ export async function runInit() {
 
   // END Application initialize
 
-  Logger.info(`App initialized in ${format(Date.now() - start)}`)
+  Logger.info(`INIT\tApp initialized in ${format(Date.now() - start)}`)
   await MongoClient.close()
   process.exit(0)
 }

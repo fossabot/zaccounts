@@ -21,7 +21,7 @@ export async function _runMitigations() {
   for (const [ver, fn] of M) {
     const cur = await getSys('ver')
     if (semver.lt(cur, ver)) {
-      Logger.info(`Mitigate from ${cur} to ${ver}`)
+      Logger.info(`MITIGATE\tMitigate from ${cur} to ${ver}`)
       await fn({ client: MongoClient, db: Db, logger: Logger })
       await setSys('ver', ver)
     }

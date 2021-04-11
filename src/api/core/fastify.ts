@@ -23,12 +23,13 @@ import { ratelimit } from '@/cache/ratelimit'
 import { getSessionByToken } from '@/cache/session'
 import { TError } from '@/api/core/schemas'
 import { Logger } from '@/logger'
+import { normalizeError, SysError, SysErrors } from '@/errors'
 
 async function parseAndLimitToken(req: FastifyRequest, res: FastifyReply) {
   const authorization = req.headers.authorization
   if (authorization && authorization.startsWith('token ')) {
     const token = authorization.substr(6).trim()
-    if (!verifyToken(token)) throw new Error('Invalid token')
+    if (!verifyToken(token)) throw new SysError(SysErrors.InvalidToken)
     const rest = await ratelimit(token, 1000, 60)
     void res.header('x-rate-limit-remaining', rest.toString())
     return token
@@ -50,7 +51,7 @@ function generateFastifySchema(
     )
   } else {
     Logger.warn(
-      `API Endpoint [${endpoint._method}]${path} do not have input schema!`
+      `API:GEN\tEndpoint\t[${endpoint._method}]${path} do not have input schema!`
     )
   }
   if (endpoint._raw) {
@@ -84,7 +85,7 @@ function generateFastifySchema(
       }
     } else {
       Logger.warn(
-        `API Endpoint [${endpoint._method}]${path} do not have output schema!`
+        `API:GEN\tEndpoint\t[${endpoint._method}]${path} do not have output schema!`
       )
     }
   }
@@ -118,7 +119,7 @@ function generateContextInit(
 }
 
 function scopeGuard(scopes: ScopeTree | undefined, scope: string) {
-  if (!matchScope(scope, scopes)) throw new Error('Access denied')
+  if (!matchScope(scope, scopes)) throw new SysError(SysErrors.AccessDenied)
 }
 
 function generateFastifyHandler(
@@ -138,7 +139,7 @@ function generateFastifyHandler(
         return r
       } catch (e) {
         void res.code(400)
-        return e.message
+        return normalizeError(e)
       }
     }
   } else {
@@ -150,7 +151,7 @@ function generateFastifyHandler(
         const r = await endpoint._handler(ctx)
         return { ok: true, r }
       } catch (e) {
-        return { ok: false, e: e.message }
+        return { ok: false, e: normalizeError(e) }
       }
     }
   }
@@ -168,7 +169,9 @@ function applyEndpoint(
   path = mergePath(path, endpoint._path)
   SIn = mergeSchema(SIn, endpoint._TIn)
 
-  Logger.info(`Apply API Endpoint [${endpoint._method}]${path} <${scope}>`)
+  Logger.info(
+    `API:GEN\tEndpoint\t[${endpoint._method}]${path} <${scope}> applied`
+  )
 
   server.route({
     method: endpoint._method,
@@ -193,7 +196,7 @@ function walkHub(
     middlewares = [...middlewares, hub._middleware]
   }
 
-  Logger.info(`Found API Hub ${path} <${scope}>`)
+  Logger.info(`API:GEN\tHub\t${path} <${scope}> found`)
 
   for (const endpoint of hub._endpoints) {
     applyEndpoint(server, endpoint, scope, path, schema, middlewares)
