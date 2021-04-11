@@ -27,5 +27,4 @@ export async function startWebServer(
   await server.register(APIPlugin)
 
   await server.listen(port, listen)
-  console.log(server.printRoutes())
 }

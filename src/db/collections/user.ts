@@ -1,10 +1,5 @@
 import { AuthUserCred } from '@/api/auth'
 
-export interface UserEmail {
-  email: string
-  verified: boolean
-}
-
 export interface UserAppInfo {
   storage: Record<string, any>
   perms: Record<string, string[]>
@@ -14,7 +9,7 @@ export interface UserDocument {
   _id: string
   name: string // username
   disp: string // nickname
-  emails: UserEmail[]
+  emails: string
   cred: AuthUserCred
   require2FA: boolean
 

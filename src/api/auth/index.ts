@@ -147,6 +147,8 @@ export async function setupAuthProviders() {
         })
       )
       .handler(async (ctx) => {
+        if (ctx.session) throw new Error('Already logged in')
+
         const user = await Collections.users.findOne(
           { name: ctx.payload.name },
           { projection: { _id: 1, cred: 1, require2FA: 1 } }
