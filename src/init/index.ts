@@ -1,6 +1,6 @@
 import format from 'pretty-ms'
 import * as uuid from 'uuid'
-import { Collections, MongoClient, getSys, setSys, Db } from '@/db'
+import { Collections, MongoClient, setSys, Db } from '@/db'
 import { confirm } from '@/utils/prompts'
 import { MAGICS } from '@/magics'
 import { Logger } from '@/logger'
@@ -29,21 +29,20 @@ async function setAdminUser() {
 }
 
 export async function runInit() {
-  const sys_ver = await getSys('ver')
-
-  if (sys_ver) {
+  if (await Collections.sys.findOne({ _id: 'ver' })) {
     if (!(await confirm('App is initialized. Perform reinit?'))) {
       process.exit(0)
     }
   }
 
   const start = Date.now()
-  Logger.info('INIT\tInitializing application...')
+  const VER = '0.0.0'
+  Logger.info(`INIT\tInitializing application ver ${VER}`)
 
   // BEGIN Application initialize
 
   await Db.dropDatabase()
-  await setSys('ver', '0.0.0')
+  await setSys('ver', VER)
   await setSys('auth', {
     pass: { enabled: true, config: {} },
     dummy: { enabled: true, config: {} }

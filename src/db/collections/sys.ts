@@ -2,7 +2,7 @@ import { AuthSysConfig } from '@/api/auth'
 import { Collections } from '@/db'
 
 export interface SysDocument {
-  _id: string
+  _id: SysKey
   value: any
 }
 
