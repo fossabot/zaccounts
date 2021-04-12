@@ -3,7 +3,7 @@
     <v-app-bar-nav-icon @click="drawers.nav = !drawers.nav" />
     <v-btn icon tile x-large @click="$router.push('/')">
       <v-avatar tile size="48">
-        <img src="/icon.png" alt="site logo" />
+        <img src="@/assets/icon.png" alt="site logo" />
       </v-avatar>
     </v-btn>
     <div class="px-2 text-h5">Accounts</div>

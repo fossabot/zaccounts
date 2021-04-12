@@ -10,7 +10,8 @@ const state = {
     settings: false
   },
   persist: {
-    theme: 'auto'
+    theme: 'auto',
+    token: ''
   }
 }
 
