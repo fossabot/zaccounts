@@ -15,6 +15,16 @@ function getGitInfo() {
 }
 
 module.exports = {
+  pages: {
+    index: {
+      entry: 'src/index/main.ts',
+      title: 'ZAccounts'
+    },
+    embed: {
+      entry: 'src/embed/main.ts',
+      title: 'ZAccounts Embedded Page'
+    }
+  },
   transpileDependencies: ['vuetify'],
   configureWebpack: {
     plugins: [

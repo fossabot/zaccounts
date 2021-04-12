@@ -19,22 +19,4 @@
   </v-navigation-drawer>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
-import { mdiClose } from '@mdi/js'
-import { sync } from 'vuex-pathify'
-import AppSettingsTheme from '@/components/AppSettingsTheme.vue'
-
-export default Vue.extend({
-  name: 'AppSettings',
-  components: { AppSettingsTheme },
-  data() {
-    return {
-      mdiClose
-    }
-  },
-  computed: {
-    drawers: sync('drawers')
-  }
-})
-</script>
+<script lang="ts" src="./Settings.ts"></script>
