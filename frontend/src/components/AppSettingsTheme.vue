@@ -24,13 +24,12 @@ import {
   mdiWeatherNight,
   mdiDesktopTowerMonitor
 } from '@mdi/js'
+import { sync } from 'vuex-pathify'
 
-const KEY = 'settings:theme'
 export default Vue.extend({
   name: 'Theme',
   data() {
     return {
-      theme: 0,
       systemTheme: 0,
       mdiWhiteBalanceSunny,
       mdiWeatherNight,
@@ -39,12 +38,11 @@ export default Vue.extend({
   },
   watch: {
     theme() {
-      const value = this.theme.toString()
-      if (localStorage.getItem(KEY) !== value) {
-        localStorage.setItem(KEY, value)
-      }
       this.syncTheme()
     }
+  },
+  computed: {
+    theme: sync<boolean>('persist@theme')
   },
   created() {
     this.init()
@@ -56,13 +54,6 @@ export default Vue.extend({
       darkMediaQuery.addEventListener('change', (ev) => {
         this.systemTheme = ev.matches ? 1 : 2
         this.syncTheme()
-      })
-      this.theme = parseInt(localStorage.getItem(KEY) || '0') || 0
-      window.addEventListener('storage', (ev) => {
-        if (ev.key === KEY) {
-          const val = parseInt(ev.newValue || '0') || 0
-          if (this.theme !== val) this.theme = val
-        }
       })
       this.syncTheme()
     },
