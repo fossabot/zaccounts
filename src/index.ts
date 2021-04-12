@@ -17,7 +17,7 @@ yargs
   .option('verbose', { type: 'count', alias: ['v'] })
   .command(
     ['start', '$0'],
-    'start zccounts server',
+    'start zaccounts server',
     (yargs) =>
       yargs
         .option('port', { type: 'number', default: 3032 })
@@ -30,7 +30,7 @@ yargs
           type: 'string',
           default: 'redis://127.0.0.1:6379/1'
         })
-        .option('dbName', { type: 'string', default: 'zccounts' }),
+        .option('dbName', { type: 'string', default: 'zaccounts' }),
     async (argv) => {
       setupLogger(argv.dev, argv.slient, argv.verbose)
       await setupMongo(argv.mongoUrl, argv.dbName)
@@ -47,14 +47,14 @@ yargs
   )
   .command(
     'init',
-    'init zccounts server',
+    'init zaccounts server',
     (yargs) =>
       yargs
         .option('mongoUrl', {
           type: 'string',
           default: 'mongodb://localhost:27017'
         })
-        .option('dbName', { type: 'string', default: 'zccounts' }),
+        .option('dbName', { type: 'string', default: 'zaccounts' }),
     async (argv) => {
       setupLogger(argv.dev, argv.slient, argv.verbose)
       await setupMongo(argv.mongoUrl, argv.dbName)

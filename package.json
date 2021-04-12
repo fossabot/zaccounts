@@ -1,10 +1,10 @@
 {
-  "name": "zccounts",
+  "name": "zaccounts",
   "version": "0.0.0",
   "description": "ZZisu SSO",
   "main": "dist/index.js",
   "license": "Apache-2.0",
-  "repository": "git@github.com:zzs-web/zccounts.git",
+  "repository": "git@github.com:zzs-web/zaccounts.git",
   "author": "zzisu <i@zzs1.cn>",
   "private": true,
   "devDependencies": {
